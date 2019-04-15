@@ -20,7 +20,7 @@ class RosBagRecorder:
         self.is_recording = False
         self.topic_to_record = '/data_to_xavier'
         self.bag_name_prefix = ''
-        self.bagfile_dir = '/home/longfei/test_ws/src/record_rosbag_oncall/bagfiles'
+        self.bagfile_dir = os.path.dirname(__file__) + '/../bagfiles'
         self.subprocess_pid = 0
         ##subscribe the imu and motordata
         rospy.Subscriber("/data_to_xavier", RobikeStatus, self.callback)
@@ -43,7 +43,7 @@ class RosBagRecorder:
                     subprocess_group_pid = os.getpgid(self.subprocess_pid)
                     os.killpg(os.getpgid(self.subprocess_pid), signal.SIGINT)
 
-                    rospy.loginfo('killed subprocess_group_pid: %d', subprocess_group_pid)
+                    rospy.loginfo('Killed subprocess_group_pid: %d. Bag file is saved in directory: %s\\ \n', subprocess_group_pid, self.bagfile_dir)
                     self.is_recording = False
                 except:
                     rospy.logerr('kill subprocess failed, subprocess_pid is %d', self.subprocess_pid)

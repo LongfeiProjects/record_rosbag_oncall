@@ -9,7 +9,6 @@ set(MSG_DEPS
 find_package(catkin COMPONENTS roscpp message_generation ${MSG_DEPS})
 
 set(MSG_FILES
-  RecordDemand.msg
 )
 
 add_message_files(DIRECTORY msgs FILES ${MSG_FILES})
@@ -31,9 +30,4 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
-)
-
-
-install(DIRECTORY launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )

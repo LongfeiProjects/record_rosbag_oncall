@@ -6,8 +6,8 @@ import datetime
 import rospy
 import rosbag
 
-from test_msgs.msg import RobikeStatus
-from record_rosbag_oncall.msg import RecordDemand
+# from robike_msgs.msg import RobikeStatusStamped
+from test_msgs.msg import RobikeStatusStamped
 
 import struct
 import subprocess
@@ -23,18 +23,20 @@ class RosBagRecorder:
         self.bagfile_dir = os.path.dirname(__file__) + '/../bagfiles'
         self.subprocess_pid = 0
         ##subscribe the imu and motordata
-        rospy.Subscriber("/data_to_xavier", RobikeStatus, self.callback)
+        rospy.Subscriber("/data_to_xavier", RobikeStatusStamped, self.callback)
 
-    
+        if not os.path.isdir(self.bagfile_dir):
+            os.mkdir(self.bagfile_dir)
+
+
     #delete function
     def __del__(self):
         exit(0)
 
 
     def callback(self, msg):
-        status = msg.status
+        status = msg.status.status
         status_bit_str = '{0:032b}'.format(status)
-        rospy.logdebug('==================================== \n status_bit_str is: %s', status_bit_str)
 
         if status_bit_str[0] == '0':
             if self.is_recording:
@@ -43,7 +45,7 @@ class RosBagRecorder:
                     subprocess_group_pid = os.getpgid(self.subprocess_pid)
                     os.killpg(os.getpgid(self.subprocess_pid), signal.SIGINT)
 
-                    rospy.loginfo('Killed subprocess_group_pid: %d. Bag file is saved in directory: %s\\ \n', subprocess_group_pid, self.bagfile_dir)
+                    rospy.loginfo('Killed subprocess_group_pid: %d. Bag file is saved in directory: %s/ \n', subprocess_group_pid, self.bagfile_dir)
                     self.is_recording = False
                 except:
                     rospy.logerr('kill subprocess failed, subprocess_pid is %d', self.subprocess_pid)
@@ -69,7 +71,8 @@ class RosBagRecorder:
 
 
 if __name__ == "__main__":
-    rospy.init_node('rospy_test')
+    rospy.init_node('rosbag_recorder', log_level=rospy.INFO)
+    rospy.loginfo('rosbag_recorder started')
     recorder = RosBagRecorder()
     rospy.spin()
 
